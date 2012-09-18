@@ -1,13 +1,36 @@
 # Hellmuth
-## A javascript poker tournament/game engine
+## A javascript poker tournament/game engine for bots
 
 ## Running a game
 
-require 'hellmuth'
+    {Game} = require 'hellmuth'
+    {Player} = require 'hellmuth'
+    {NoLimit} = require 'hellmuth'
+
+    describe "Basic game", ->
+      beforeEach () ->
+        @noLimit = new NoLimit(10,20)
+        @players = []
+        chips = 1000
+        misterCallsAll =
+          act: (self, status) ->
+            if self.wagered < self.minToCall
+              self.minToCall - self.wagered
+            else
+              0
+        for n in [0..6]
+          @players.push new Player(misterCallsAll, chips, n)
+
+      it "should play the game to completion with run()", (done) ->
+        game = new Game(@players, @noLimit)
+        game.run()
+        game.on 'complete', ->
+          assert.ok game.winners.length > 0
+          done()
 
 ## Requirements
 
-### JS Sandbox 
+[[###]] JS Sandbox
 
 Figure out how to safely run JS code from contestants.
 
