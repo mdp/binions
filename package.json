@@ -10,7 +10,7 @@
     "prepublish": "rm -rf lib && coffee --compile -o lib/ src/"
   },
   "dependencies": {
-    "binions": "0.1.x"
+    "binions": ">=0.1.5"
   },
   "devDependencies": {
      "coffee-script" : "1.3.x"
