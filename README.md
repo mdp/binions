@@ -1,3 +1,5 @@
+[![Build
+Status](https://secure.travis-ci.org/mdp/hellmuth.png)](http://travis-ci.org/mdp/hellmuth)
 # Hellmuth
 ## A javascript poker tournament/game engine for bots
 
@@ -30,7 +32,7 @@
 
 ## Requirements
 
-[[###]] JS Sandbox
+### JS Sandbox
 
 Figure out how to safely run JS code from contestants.
 
