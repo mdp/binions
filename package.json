@@ -1,0 +1,21 @@
+{
+  "name": "hellmuth",
+  "version": "0.0.1",
+  "description": "World Series of Javascript Poker",
+  "keywords": ["poker tournament", "pokerbot", "poker"],
+  "repository": "git://github.com/mdp/hellmuth.git",
+  "author": "Mark Percival <mark@markpercival.us> (http://markpercival.us)",
+  "scripts": {
+    "test": "mocha --compilers coffee:coffee-script test/*_test.coffee",
+    "prepublish": "coffee -o lib -c src/*.coffee"
+  },
+  "dependencies": {
+    "binions": "0.1.x"
+  },
+  "devDependencies": {
+    "mocha": ">=1.2.2",
+    "should": ">=0.6.3"
+  },
+  "main": "./lib/index.js",
+  "engines": { "node": "0.8.x" }
+}
