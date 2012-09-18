@@ -7,7 +7,7 @@
   "author": "Mark Percival <mark@markpercival.us> (http://markpercival.us)",
   "scripts": {
     "test": "mocha --compilers coffee:coffee-script test/*_test.coffee",
-    "prepublish": "coffee -o lib -c src/*.coffee"
+    "prepublish": "rm -rf lib && coffee --compile -o lib/ src/"
   },
   "dependencies": {
     "binions": "0.1.x"

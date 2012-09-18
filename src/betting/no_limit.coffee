@@ -1,5 +1,4 @@
 NoLimit = module.exports = (small, big) ->
-  console.log "Creating game #{small}/#{big}"
   smallBlind = Math.floor(small/2)
   bigBlind = small
 
