@@ -130,14 +130,18 @@ class exports.Game extends EventEmitter
   settle: ->
     inPlay = @activePlayers()
     while inPlay.length >= 1
-      hands = inPlay.map (p) =>
-        p.makeHand(@community)
-      winningHands = Hand.pickWinners(hands)
-      winners = inPlay.filter (p) ->
-        winningHands.indexOf(p.hand) >= 0
-      @distributeWinnings winners
-      for winner in winners
-        @winners.push winner
-      inPlay = @activePlayers()
+      if inPlay.length == 1
+        # Last one in the game
+        @distributeWinnings(inPlay[0])
+      else
+        hands = inPlay.map (p) =>
+          p.makeHand(@community)
+        winningHands = Hand.pickWinners(hands)
+        winners = inPlay.filter (p) ->
+          winningHands.indexOf(p.hand) >= 0
+        @distributeWinnings winners
+        for winner in winners
+          @winners.push winner
+        inPlay = @activePlayers()
     @emit 'complete'
 
