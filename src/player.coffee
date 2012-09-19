@@ -6,7 +6,7 @@
 #
 # The player is passed in and will be delt with according
 # to the API
-{Hand} = require "binions"
+{Hand} = require "hoyle"
 {EventEmitter} = require 'events'
 class exports.Player extends EventEmitter
   constructor: (bot, chips, seat)->

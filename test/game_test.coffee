@@ -1,6 +1,6 @@
 assert = require 'assert'
 {Game} = require '../src/game'
-{Card} = require 'binions'
+{Card} = require 'hoyle'
 {Player} = require '../src/player'
 NoLimit = require '../src/betting/no_limit'
 

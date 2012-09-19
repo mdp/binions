@@ -1,6 +1,6 @@
 {EventEmitter} = require 'events'
-{Deck} = require 'binions'
-{Hand} = require 'binions'
+{Deck} = require 'hoyle'
+{Hand} = require 'hoyle'
 
 class exports.Game extends EventEmitter
   constructor: (players, betting) ->

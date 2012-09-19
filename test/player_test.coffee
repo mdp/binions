@@ -1,5 +1,5 @@
 assert = require 'assert'
-{Card} = require 'binions'
+{Card} = require 'hoyle'
 {Player} = require '../src/player'
 
 describe "Basic player", ->
