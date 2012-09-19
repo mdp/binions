@@ -1,9 +1,9 @@
 {
-  "name": "hellmuth",
-  "version": "0.0.2",
+  "name": "binions",
+  "version": "0.2.0",
   "description": "World Series of Javascript Poker",
   "keywords": ["poker tournament", "pokerbot", "poker"],
-  "repository": "git://github.com/mdp/hellmuth.git",
+  "repository": "git://github.com/mdp/binions.git",
   "author": "Mark Percival <mark@markpercival.us> (http://markpercival.us)",
   "scripts": {
     "test": "mocha --compilers coffee:coffee-script test/*_test.coffee",
