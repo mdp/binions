@@ -1,13 +1,16 @@
 [![Build
-Status](https://secure.travis-ci.org/mdp/hellmuth.png)](http://travis-ci.org/mdp/hellmuth)
-# Hellmuth
+Status](https://secure.travis-ci.org/mdp/binions.png)](http://travis-ci.org/mdp/binions)
+
+![Binions](http://s3.amazonaws.com/img.mdp.im/binions_cut-20120918-200256.jpg)
+
+# Binions
 ## A javascript poker tournament/game engine for bots
 
 ## Running a game
 
-    {Game} = require 'hellmuth'
-    {Player} = require 'hellmuth'
-    {NoLimit} = require 'hellmuth'
+    {Game} = require 'binions'
+    {Player} = require 'binions'
+    {NoLimit} = require 'binions'
 
     describe "Basic game", ->
       beforeEach () ->
