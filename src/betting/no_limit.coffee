@@ -11,9 +11,9 @@ NoLimit = module.exports = (small, big) ->
       @offset = 0
       @minToCall = 0
       @minToRaise = 0
-      if @state == 'preFlop'
+      if @state == 'pre-flop'
         @offset = 2
-      else if players.length == 2 && @state == 'preFlop'
+      else if players.length == 2 && @state == 'pre-flop'
         @offset = 1
 
       if @state == 'turn' || @state == 'river'
@@ -73,6 +73,7 @@ NoLimit = module.exports = (small, big) ->
       @setNextToAct(lastPosition)
 
     setNextToAct: (lastPos) ->
+      #console.log "Last Position: #{lastPos}, Offset: #{@offset} - #{@state}"
       if lastPos == null
         @nextToAct = @players[@offset]
       else
@@ -87,6 +88,7 @@ NoLimit = module.exports = (small, big) ->
               break
       if @lastRaisePosition && @players[@lastRaisePosition] == @nextToAct
         @canRaise = false
+      #console.log "Next to act #{@nextToAct.position}" if @nextToAct
 
     # Enforce betting rules here
     # eg. I bet 7, call is 5, and raise is 10
@@ -97,13 +99,16 @@ NoLimit = module.exports = (small, big) ->
       else
         player = @nextToAct
         amount = pos
+      amount = parseInt(amount, 10) || 0
       total = player.wagered + amount
+      #console.log "Adding #{amount} to #{player.wagered}"
       #console.log "Amount: #{amount} added to #{player.wagered} - minToCall #{@minToCall}"
       if player.chips == amount
         player.act(@state, 'allIn', amount)
       else if @minToCall - player.wagered == 0 && total < @minToRaise
         player.act(@state, 'check')
       else if total < @minToCall # Can be -1 to force a fold on check
+        #console.log "Fold"
         player.act(@state, 'fold')
       else if total >= @minToRaise
         player.act(@state, 'raise', amount)
@@ -122,6 +127,11 @@ NoLimit = module.exports = (small, big) ->
           @takeBets(gameStatus, cb)
         else
           cb?()
+
+    takeBlinds: ->
+      for blind, i in @blinds()
+        @players[i].bet blind
+      @analyze()
 
     status: ->
       minToCall: @minToCall

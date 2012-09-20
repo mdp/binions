@@ -12,13 +12,17 @@ class exports.Player extends EventEmitter
   constructor: (bot, chips, seat)->
     @bot = bot
     @position = seat
-    @cards = []
-    @_actions = {}
     @chips = chips
+    @name = bot.name if bot
+    @reset()
+
+  reset: ->
+    @removeAllListeners()
     @wagered = 0
     @state = 'active'
-    @name = bot.name if bot
     @hand = null
+    @cards = []
+    @_actions = {}
 
   active: ->
     @state == 'active' || @state == 'allIn'
@@ -92,6 +96,8 @@ class exports.Player extends EventEmitter
       actions: @_actions || []
     if final
       s.cards = @cards.map (c) -> c.toString()
-      s.hand = @hand.toString()
+      if @hand
+        #s.hand = @hand.map (c) -> c.toString()
+        s.hand = @hand.name
     s
 

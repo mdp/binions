@@ -101,12 +101,10 @@ describe "No limit betting", ->
       @players= []
       for n in [0..3]
         @players.push new Player({}, 1000, n)
-      @noLimit = new NoLimit(@players, 'preFlop')
-      for blind, i in @noLimit.blinds()
-        @players[i].bet blind
+      @noLimit = new NoLimit(@players, 'pre-flop')
+      @noLimit.takeBlinds()
 
     it "should start with players after blinds", () ->
-      @noLimit.analyze()
       assert.equal @noLimit.nextToAct, @players[2]
       assert.equal @noLimit.minToCall, 10
 

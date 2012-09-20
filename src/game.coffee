@@ -1,20 +1,26 @@
 {EventEmitter} = require 'events'
 {Deck} = require 'hoyle'
 {Hand} = require 'hoyle'
+utils = require 'util'
 
 class exports.Game extends EventEmitter
   constructor: (players, betting) ->
-    @deck = new Deck()
     @Betting = betting
-    @community = []
-    @burn = []
-    @winners = []
     @players = players
     for player,i in @players
       player.position = i
       player.on "bet", (bet) =>
         @emit "bet", bet
     @state = null
+    @reset()
+
+  reset: ->
+    for player in @players
+      player.reset()
+    @deck = new Deck()
+    @community = []
+    @burn = []
+    @winners = []
 
   run: ->
     @deck.shuffle()
@@ -28,6 +34,7 @@ class exports.Game extends EventEmitter
         @settle()
 
   deal: ->
+    return false if @activePlayers().length == 1
     switch @state
       when null then @preFlop()
       when 'pre-flop' then @flop()
@@ -43,9 +50,7 @@ class exports.Game extends EventEmitter
       cb?()
 
   takeBlinds: ->
-    blinds = new @Betting(@players, @state).blinds()
-    @players[0].bet(blinds[0])
-    @players[1].bet(blinds[1])
+    new @Betting(@players, @state).takeBlinds()
 
   preFlop: ->
     # Dealer acts before the flop
@@ -75,10 +80,10 @@ class exports.Game extends EventEmitter
 
   status: (final)->
     s = {}
-    s.community = []
-    for card in @community
-      s.community.push card.toString()
+    s.community = @community.map (c) -> c.toString()
     s.state = @state
+    if final
+      s.winners = @winners
     s.players = []
     for player in @players
       s.players.push player.status(final)
@@ -88,33 +93,34 @@ class exports.Game extends EventEmitter
     if winners.length > 1
       @splitPot(winners)
     else
-      @payout winners[0]
+      @payout winners[0], @take(winners[0].wagered)
 
   splitPot: (winners) ->
     lowest = Math.min.apply(Math, winners.map (w) -> w.wagered)
+    total = @take(lowest)
+    each = Math.floor(total/winners.length)
+    leftover = total - each*winners.length
+    for winner,i in winners
+      if i == 0
+        @payout(winner, each + leftover)
+      else
+        @payout(winner, each)
+
+  # What we want to take from each of the players
+  take: (amount) ->
     total = 0
     for player in @players
-      if lowest > player.wagered
+      if amount > player.wagered
         total = total + player.wagered
         player.wagered = 0
       else
-        total = total + lowest
-        player.wagered = player.wagered - lowest
-    each = Math.floor(total/winners.length)
-    leftover = total - each*winners.length
-    for winner in winners
-      winner.chips = winner.chips + each
-    winners[0].chips = winner.chips + leftover
+        total = total + amount
+        player.wagered = player.wagered - amount
+    total
 
-  payout: (winner) ->
-    amount = winner.wagered
-    for player in @players
-      if player.wagered < amount
-        total = player.wagered
-      else
-        total = amount
-      winner.chips = total + winner.chips
-      player.wagered = player.wagered - total
+  payout: (winner, amount) ->
+    @winners.push({position: winner.position, amount: amount})
+    winner.chips = amount + winner.chips
 
   pot: ->
     t = 0
@@ -132,7 +138,8 @@ class exports.Game extends EventEmitter
     while inPlay.length >= 1
       if inPlay.length == 1
         # Last one in the game
-        @distributeWinnings(inPlay[0])
+        @distributeWinnings(inPlay)
+        break
       else
         hands = inPlay.map (p) =>
           p.makeHand(@community)
@@ -140,8 +147,6 @@ class exports.Game extends EventEmitter
         winners = inPlay.filter (p) ->
           winningHands.indexOf(p.hand) >= 0
         @distributeWinnings winners
-        for winner in winners
-          @winners.push winner
         inPlay = @activePlayers()
-    @emit 'complete'
+    @emit 'complete', @status(true)
 
