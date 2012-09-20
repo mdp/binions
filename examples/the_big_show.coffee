@@ -10,12 +10,12 @@ noLimit = new NoLimit(10,20)
 players = []
 chips = 10000
 for i in [0..3]
-  players.push new Player(callBot("steve #{i}"), chips, i)
+  players.push new Player(callBot("Steve #{i}"), chips, i)
 for i in [0..2]
   players.push new Player(randBot("Jim #{i}"), chips, i + 3)
 
 
-rounds = 100
+rounds = 1000
 i = 0
 run = ->
   game = new Game(players, noLimit)
@@ -26,7 +26,8 @@ run = ->
     console.log "Round #{i}"
     i++
     if i == rounds
-      console.log JSON.stringify(status.players[status.winners[0].position], null, 2)
+      console.log players.map (p) -> "Name: #{p.name} - $#{p.chips}"
+      #console.log JSON.stringify(status.players[status.winners[0].position], null, 2)
     if i < rounds
       players = players.concat(players.shift())
       run()
