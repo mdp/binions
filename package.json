@@ -1,12 +1,12 @@
 {
   "name": "binions",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "World Series of Javascript Poker",
   "keywords": ["poker tournament", "pokerbot", "poker", "texas hold'em"],
   "repository": "git://github.com/mdp/binions.git",
   "author": "Mark Percival <mark@markpercival.us> (http://markpercival.us)",
   "scripts": {
-    "test": "mocha --compilers coffee:coffee-script test/*_test.coffee",
+    "test": "mocha --no-colors --compilers coffee:coffee-script test/*_test.coffee",
     "prepublish": "rm -rf lib && coffee --compile -o lib/ src/"
   },
   "dependencies": {

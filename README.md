@@ -33,32 +33,20 @@ Status](https://secure.travis-ci.org/mdp/binions.png)](http://travis-ci.org/mdp/
           assert.ok game.winners.length > 0
           done()
 
-## Requirements
+## Todo
 
-### JS Sandbox
+### Tests
 
-Figure out how to safely run JS code from contestants.
+- More tests on bet handlers(NoLimit)
 
-- Stop access to globals
-- No require (No ability to require a file system module or network)
-- Need a way to measure speed and stop slow bots(What's a good limit, 1000ms), fold/check on timeout
-- Prevent errors, fold on error.
-- Require certain attributes: Name
-- Network layer provided, your bot simply has to respond to a game
-  object
-- Prevent setTimeout
-- Run in seperate process, handle excess memory usage, process exceptions, timeouts
+### Build more example players
 
-### Game
+- Players that only play certain pocket cards (eg, Kings or higer)
+- Tight players
+- Players that occasionally go all in
 
-- No limit Texas Hold'em
+### Poker competition
 
-### Frontend
-
-- Need live updating scoreboard.
-- Live stats, each player, hands folded, pots one, raises
-
-### Bots
-
-- Build a sample bot for testing
-
+- Need to split out bot handler for running untrusted code into a
+seperate project
+- Need way to provide memory/state for the bot code (Passed in object)
