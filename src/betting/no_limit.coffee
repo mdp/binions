@@ -117,26 +117,28 @@ NoLimit = module.exports = (small, big) ->
       @analyze()
 
     takeBets: (gameStatus, cb) ->
-      cb?() unless @nextToAct
-      @nextToAct.takeBet @status(), gameStatus, (err, bet) =>
-        if err
-          @bet(0) # Check/fold on error
-        else
-          @bet(bet)
-        if @nextToAct
-          @takeBets(gameStatus, cb)
-        else
-          cb?()
+      unless @nextToAct
+        cb?()
+      else
+        @nextToAct.takeBet @playerStatus(), gameStatus, (err, bet) =>
+          if err
+            @bet(0) # Check/fold on error
+          else
+            @bet(bet)
+          if @nextToAct
+            @takeBets(gameStatus, cb)
+          else
+            cb?()
 
     takeBlinds: ->
       for blind, i in @blinds()
         @players[i].bet blind
       @analyze()
 
-    status: ->
-      minToCall: @minToCall
-      minToRaise: @minToRaise
-      canRaise: @canRaise
-      wagered: @nextToAct.wagered
-      cards: @nextToAct.cards
+    playerStatus: ->
+      status = @nextToAct.status(true)
+      status.minToCall = @minToCall - @nextToAct.wagered
+      status.minToRaise = @minToRaise - @nextToAct.wagered
+      status.canRaise = @canRaise
+      status
 
