@@ -17,7 +17,6 @@ class exports.Player extends EventEmitter
     @reset()
 
   reset: ->
-    @removeAllListeners()
     @wagered = 0
     @state = 'active'
     @hand = null
@@ -86,7 +85,7 @@ class exports.Player extends EventEmitter
     @hand = Hand.make(c)
     @hand
 
-  status: (final) ->
+  status: (priviledged) ->
     s =
       position: @position
       wagered: @wagered
@@ -94,10 +93,9 @@ class exports.Player extends EventEmitter
       chips: @chips
       name: @name
       actions: @_actions || []
-    if final
+    if priviledged
       s.cards = @cards.map (c) -> c.toString()
       if @hand
-        #s.hand = @hand.map (c) -> c.toString()
         s.hand = @hand.name
     s
 
