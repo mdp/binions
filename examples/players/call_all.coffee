@@ -1,7 +1,7 @@
 module.exports = (name) ->
   name: name
   act: (me, status) ->
-    if me.wagered < me.minToCall
-      status.minToCall - me.wagered
+    if me.minToCall
+      me.minToCall
     else
       0

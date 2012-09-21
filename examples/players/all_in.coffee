@@ -1,7 +1,7 @@
 module.exports = (name) ->
   name: name
   act: (me, status) ->
-    if status.canRaise
+    if me.canRaise
       me.chips
     else
-      0
+      me.minToCall

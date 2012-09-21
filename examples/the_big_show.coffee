@@ -5,14 +5,18 @@ NoLimit = require '../src/betting/no_limit'
 
 callBot = require './players/call_all'
 randBot = require './players/unpredictable'
+smartBot = require './players/smart_bot'
 
 noLimit = new NoLimit(10,20)
 players = []
-chips = 10000
-for i in [0..3]
+chips = 1000
+for i in [1..6]
   players.push new Player(callBot("Steve #{i}"), chips, i)
-for i in [0..2]
-  players.push new Player(randBot("Jim #{i}"), chips, i + 3)
+players.push new Player(randBot("Jim"), chips, i + 3)
+sam = new Player(smartBot("Sam"), chips, i + 3)
+sam.on 'bet', (bet) ->
+  console.log bet
+players.push sam
 
 
 rounds = 1000
@@ -25,10 +29,10 @@ run = ->
   game.on 'complete', (status) ->
     console.log "Round #{i}"
     i++
-    if i == rounds
+    numPlayer = (players.filter (p) -> p.chips > 0).length
+    if i == rounds or numPlayer < 2
       console.log players.map (p) -> "Name: #{p.name} - $#{p.chips}"
-      #console.log JSON.stringify(status.players[status.winners[0].position], null, 2)
-    if i < rounds
+    else
       players = players.concat(players.shift())
       run()
 
