@@ -6,11 +6,11 @@ utils = require 'util'
 class exports.Game extends EventEmitter
   constructor: (players, betting) ->
     @Betting = betting
-    @players = players
+    @players = players.filter (p) -> p.chips > 0
+    if @players.length < 2
+      throw "Not enough players"
     for player,i in @players
       player.position = i
-      player.on "bet", (bet) =>
-        @emit "bet", bet
     @state = null
     @reset()
 

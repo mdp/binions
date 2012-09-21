@@ -123,3 +123,22 @@ describe "Basic game", ->
       assert.equal @players[1].chips, 950 + 10
       assert.equal @players[2].chips, 950 + 10
       done()
+
+  describe "with broke players", ->
+
+    it "should safely eject them", ->
+      players = []
+      for n in [0..2]
+        players.push new Player({}, 100, n)
+      for n in [0..2]
+        players.push new Player({}, 0, n)
+      game = new Game(players, @noLimit)
+      assert.equal game.players.length, 3
+
+    it "should refuse to play games with less than two moneyed players", ->
+      players = [
+        new Player({}, 100)
+        new Player({}, 0)
+      ]
+      test = -> new Game(players, @noLimit)
+      assert.throws(test, /Not enough players/)
