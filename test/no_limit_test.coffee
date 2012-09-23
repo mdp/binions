@@ -104,40 +104,77 @@ describe "No limit betting", ->
       @noLimit = new NoLimit(@players, 'pre-flop')
       @noLimit.takeBlinds()
 
-    it "should start with players after blinds", () ->
+    it "should start with players after blinds", ->
       assert.equal @noLimit.nextToAct, @players[2]
       assert.equal @noLimit.minToCall, 10
 
-    it "should handle blinds on option/check", () ->
+    it "should handle blinds on option/check", ->
       @noLimit.bet(2, 10)
       @noLimit.bet(3, 10)
       assert.equal @noLimit.nextToAct, @players[0]
       assert.equal @noLimit.minToCall, 10
 
-    #it "should handle blinds raising", () ->
-      #@positions[2].act 'preFlop', 'call', 10
-      #@positions[3].act 'preFlop', 'call', 10
-      #@positions[0].act 'preFlop', 'call', 5
-      #@positions[1].act 'preFlop', 'raise', 10
-      #next = @noLimit.next()
-      #assert.equal next.minToCall, 10
-      #assert.equal next.position, 2
+    it "should handle blinds raising", ->
+      @noLimit.bet(2, 10)
+      @noLimit.bet(3, 10)
+      @noLimit.bet(0, 5)
+      @noLimit.bet(1, 10) # Raise to 20
+      assert.equal @noLimit.minToCall, 20
+      assert.equal @noLimit.nextToAct, @players[2]
+      @noLimit.bet(2, 10)
+      assert.equal @noLimit.minToCall, 20
+      assert.equal @noLimit.nextToAct, @players[3]
+      @noLimit.bet(3, 10)
+      assert.equal @noLimit.minToCall, 20
+      assert.equal @noLimit.nextToAct, @players[0]
+      @noLimit.bet(0, 10)
+      assert.equal @noLimit.nextToAct, null
 
-    #it "should handle folds", () ->
-      #@positions[2].act 'preFlop', 'fold'
-      #@positions[3].act 'preFlop', 'call', 10
-      #@positions[0].act 'preFlop', 'call', 5
-      #@positions[1].act 'preFlop', 'raise', 10
-      #next = @noLimit.next()
-      #assert.equal next.minToCall, 10
-      #assert.equal next.position, 3
+    it "should handle folds", ->
+      @noLimit.bet(2, 0)
+      @noLimit.bet(3, 10)
+      @noLimit.bet(0, 5)
+      @noLimit.bet(1, 10) # Raise to 20
+      assert.equal @noLimit.minToCall, 20
+      assert.equal @noLimit.nextToAct, @players[3]
 
-    #it "should handle everyone folding", () ->
-      #@positions[2].act 'preFlop', 'fold'
-      #@positions[3].act 'preFlop', 'fold'
-      #@positions[0].act 'preFlop', 'fold'
-      #next = @noLimit.next()
-      #assert.ok !next
+    it "should handle everyone folding", () ->
+      @noLimit.bet(2, 0)
+      @noLimit.bet(3, 0)
+      @noLimit.bet(0, 0)
+      assert.equal @noLimit.nextToAct, null
+
+  describe "heads up", ->
+
+    describe "during the pre-flop", ->
+
+      beforeEach ->
+        @players= []
+        for n in [0..1]
+          @players.push new Player({}, 1000, n)
+        @noLimit = new NoLimit(@players, 'pre-flop')
+        @noLimit.takeBlinds()
+
+      it "should take small blind from the button", () ->
+        assert.equal @players[1].wagered, 5
+
+      it "should start with the button/dealer", () ->
+        assert.equal @noLimit.nextToAct, @players[1]
+        assert.equal @noLimit.minToCall, 10
+
+    describe "outside the pre-flop", ->
+
+      beforeEach ->
+        @players= []
+        for n in [0..1]
+          @players.push new Player({}, 1000, n)
+        @noLimit = new NoLimit(@players, 'flop')
+
+      it "should start with the first player", () ->
+        assert.equal @noLimit.nextToAct, @players[0]
+        assert.equal @noLimit.minToCall, 0
+
+
 
   #describe "during the flop", ->
 

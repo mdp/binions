@@ -11,10 +11,10 @@ NoLimit = module.exports = (small, big) ->
       @offset = 0
       @minToCall = 0
       @minToRaise = 0
-      if @state == 'pre-flop'
-        @offset = 2
-      else if players.length == 2 && @state == 'pre-flop'
+      if players.length == 2 && @state == 'pre-flop'
         @offset = 1
+      else if @state == 'pre-flop'
+        @offset = 2
 
       if @state == 'turn' || @state == 'river'
         @roundMinimum = big
@@ -27,20 +27,27 @@ NoLimit = module.exports = (small, big) ->
         pos.active()
       actives.length > 1
 
+    # Returns a list of actions taken in order
     actions: ->
       _actions = []
-      maxActions = Math.max.apply Math, (@players.map (p) -> p.actions.length)
-      for pos, i in @players
-        for act, j in pos.actions(@state)
-          _actions[i*maxActions + j] = act
-          _actions[i*maxActions + j]['position'] = i
-      _actions.filter -> return true
+      # Bucket the actions
+      for i in [0..(@players.length-1)]
+        i = (i + @offset) % @players.length
+        player = @players[i]
+        for act, j in player.actions(@state)
+          _actions[j] ||= []
+          act.position = player.position
+          _actions[j].push act
+      # Flatten the results
+      if _actions.length > 0
+        _actions = _actions.reduce (a,b) ->
+          a.concat(b)
+      _actions
 
     currentWager: ->
-      return _maxWagered if _maxWagered?
       wagers = @players.map (pos) ->
         pos.wagered || 0
-      _maxWagered = Math.max.apply(Math, wagers)
+      Math.max.apply(Math, wagers)
 
     blinds: ->
       if @players.length > 2
@@ -53,27 +60,23 @@ NoLimit = module.exports = (small, big) ->
       @nextToAct = null
       @minToRaise = minRaise = @roundMinimum
       @minToCall = @currentWager()
-      @actionCount = Math.max.apply Math, (@players.map (p) -> p.actions.length)
       previousBet = 0
       lastPosition = null
       for act in @actions()
         currentBet = act['bet'] || 0
         raise = currentBet - previousBet
-        #console.log "Raise #{raise} on bet of #{currentBet}, and previous bet of #{previousBet}"
-        #console.log "MinimumRaise: #{minRaise}"
         if currentBet > @minToCall
           @minToCall = currentBet
         if raise >= minRaise # Legal raise
-          #console.log "Legal Raise"
           minRaise = raise
           @lastRaisePosition = act['position']
         previousBet = currentBet
         lastPosition = act['position']
       @minToRaise = minRaise + @minToCall
-      @setNextToAct(lastPosition)
+      if @gameActive()
+        @setNextToAct(lastPosition)
 
     setNextToAct: (lastPos) ->
-      #console.log "Last Position: #{lastPos}, Offset: #{@offset} - #{@state}"
       if lastPos == null
         @nextToAct = @players[@offset]
       else
@@ -88,7 +91,6 @@ NoLimit = module.exports = (small, big) ->
               break
       if @lastRaisePosition && @players[@lastRaisePosition] == @nextToAct
         @canRaise = false
-      #console.log "Next to act #{@nextToAct.position}" if @nextToAct
 
     # Enforce betting rules here
     # eg. I bet 7, call is 5, and raise is 10
@@ -101,14 +103,11 @@ NoLimit = module.exports = (small, big) ->
         amount = pos
       amount = parseInt(amount, 10) || 0
       total = player.wagered + amount
-      #console.log "Adding #{amount} to #{player.wagered}"
-      #console.log "Amount: #{amount} added to #{player.wagered} - minToCall #{@minToCall}"
       if player.chips == amount
         player.act(@state, 'allIn', amount)
       else if @minToCall - player.wagered == 0 && total < @minToRaise
         player.act(@state, 'check')
       else if total < @minToCall # Can be -1 to force a fold on check
-        #console.log "Fold"
         player.act(@state, 'fold')
       else if total >= @minToRaise
         player.act(@state, 'raise', amount)
