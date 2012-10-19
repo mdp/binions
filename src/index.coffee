@@ -1,4 +1,6 @@
-{Game} = require  './game'
-{NoLimit} = require  './betting/no_limit'
-{Player} = require  './player'
+module.exports =
+  Game: require('./game').Game
+  Player: require('./player').Player
 
+  betting:
+    noLimit: require('./betting/no_limit')
