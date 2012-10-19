@@ -65,11 +65,12 @@ class exports.Player extends EventEmitter
 
   takeBet: (self, gameStatus, cb) ->
     # Returns the bet amount Integer
-    if @bot.async #Remote bot
+    if @bot.length > 2
       @bot.act self, gameStatus, (err, bet) ->
         cb(err, bet)
     else
-      cb null, @bot.act(self, gameStatus)
+      process.nextTick =>
+        cb null, @bot.act(self, gameStatus)
 
   lastBet: (state) ->
     lastAct = @actions(state)[@actions(state).length - 1]
