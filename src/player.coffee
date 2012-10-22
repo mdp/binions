@@ -65,7 +65,7 @@ class exports.Player extends EventEmitter
 
   takeBet: (self, gameStatus, cb) ->
     # Returns the bet amount Integer
-    if @bot.length > 2
+    if @bot.act.length > 2
       @bot.act self, gameStatus, (err, bet) ->
         cb(err, bet)
     else
