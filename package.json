@@ -1,8 +1,8 @@
 {
   "name": "binions",
-  "version": "0.2.3",
-  "description": "World Series of Javascript Poker",
-  "keywords": ["poker tournament", "pokerbot", "poker", "texas hold'em"],
+  "version": "0.3.0",
+  "description": "A Javascript Poker game engine",
+  "keywords": ["poker tournament", "pokerbot", "poker", "poker engine", "texas hold'em"],
   "repository": "git://github.com/mdp/binions.git",
   "author": "Mark Percival <mark@markpercival.us> (http://markpercival.us)",
   "scripts": {
