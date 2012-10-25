@@ -124,6 +124,24 @@ describe "Basic game", ->
       assert.equal @players[2].chips, 950 + 10
       done()
 
+  describe "telling players what they won", ->
+
+    it "should call payout", (done) ->
+      players = []
+      for n in [0..2]
+        players.push new Player({}, 100, n)
+      players.push new Player({
+        act: ->
+          0
+        payout: (status) ->
+          # I should get notified about the game status
+          # on settle
+          assert.ok
+          done()
+      }, 100, 3)
+      game = new Game(players, @noLimit)
+      game.settle()
+
   describe "with broke players", ->
 
     it "should safely eject them", ->

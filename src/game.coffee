@@ -133,6 +133,15 @@ class exports.Game extends EventEmitter
       p.inPlay()
     calls
 
+  notifyPlayers: (callback) ->
+    j = @players.length - 1
+    i = 0
+    for player in @players
+      player.payout @status(true), ->
+        if i == j
+          callback(null)
+        i++
+
   settle: ->
     inPlay = @activePlayers()
     while inPlay.length >= 1
@@ -148,5 +157,7 @@ class exports.Game extends EventEmitter
           winningHands.indexOf(p.hand) >= 0
         @distributeWinnings winners
         inPlay = @activePlayers()
-    @emit 'complete', @status(true)
+
+    @notifyPlayers =>
+      @emit 'complete', @status(true)
 

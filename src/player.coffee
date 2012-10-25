@@ -72,6 +72,18 @@ class exports.Player extends EventEmitter
       process.nextTick =>
         cb null, @bot.act(self, gameStatus)
 
+  payout: (gameStatus, cb) ->
+    # Notify the play of who won
+    if !@bot.payout
+      process.nextTick =>
+        cb null
+    else if @bot.payout.length > 1
+      @bot.payout gameStatus, (err) ->
+        cb(err)
+    else
+      process.nextTick =>
+        cb null, @bot.payout(gameStatus)
+
   lastBet: (state) ->
     lastAct = @actions(state)[@actions(state).length - 1]
     if lastAct && lastAct['bet']
@@ -89,12 +101,13 @@ class exports.Player extends EventEmitter
   status: (priviledged) ->
     s =
       position: @position
+      seat: @seat
       wagered: @wagered
       state: @state
       chips: @chips
-      name: @name
       actions: @_actions || []
     if priviledged
+      s.name = @name
       s.cards = @cards.map (c) -> c.toString()
       if @hand
         s.hand = @hand.name
