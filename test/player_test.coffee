@@ -18,3 +18,20 @@ describe "Basic player", ->
     hand = @player.makeHand([new Card('Ah'), new Card('Ks'), new Card('Td')])
     assert.equal hand.name, "Two pair"
 
+  describe "status", ->
+
+    it "should hide their cards during game play", ->
+      @player.cards = [new Card('As'), new Card('Kh')]
+      status = @player.status(Player.STATUS.PUBLIC)
+      assert.equal undefined, status.cards
+
+    it "should show their cards at the end", ->
+      @player.cards = [new Card('As'), new Card('Kh')]
+      status = @player.status(Player.STATUS.FINAL)
+      assert.equal 2,status.cards.length
+
+    it "should show their cards at the end unless they folded", ->
+      @player.cards = [new Card('As'), new Card('Kh')]
+      @player.state = 'folded'
+      status = @player.status(Player.STATUS.FINAL)
+      assert.equal undefined, status.cards

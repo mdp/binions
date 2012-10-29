@@ -109,7 +109,7 @@ Player = class exports.Player extends EventEmitter
       s.payout = @payout
     # Only show the cards in the final round if the player has not folded
     # or if we are asking for the PRIVILEGED/Logging view
-    if (level == Player.STATUS.FINAL && @active()) || Player.STATUS.PRIVILEGED
+    if (level == Player.STATUS.FINAL && @active()) || level == Player.STATUS.PRIVILEGED
       s.cards = @cards.map (c) -> c.toString()
       if @hand
         s.handName = @hand.name
