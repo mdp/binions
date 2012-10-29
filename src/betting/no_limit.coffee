@@ -29,20 +29,19 @@ NoLimit = module.exports = (small, big) ->
 
     # Returns a list of actions taken in order
     actions: ->
-      _actions = []
+      actions = []
       # Bucket the actions
       for i in [0..(@players.length-1)]
         i = (i + @offset) % @players.length
         player = @players[i]
         for act, j in player.actions(@state)
-          _actions[j] ||= []
-          act.position = i
-          _actions[j].push act
+          actions[j] ||= []
+          actions[j].push {bet: act.bet, type: act.type, position: i}
       # Flatten the results
-      if _actions.length > 0
-        _actions = _actions.reduce (a,b) ->
+      if actions.length > 0
+        actions = actions.reduce (a,b) ->
           a.concat(b)
-      _actions
+      actions
 
     currentWager: ->
       wagers = @players.map (pos) ->
