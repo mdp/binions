@@ -22,6 +22,9 @@ Player = class exports.Player extends EventEmitter
 
   reset: ->
     @wagered = 0
+    @payout = 0
+    @ante = 0
+    @blind = 0
     @state = 'active'
     @hand = null
     @cards = []
@@ -42,6 +45,10 @@ Player = class exports.Player extends EventEmitter
     @wagered = @wagered + amount
     @chips = @chips - amount
     amount
+
+  takeBlind: (amount) ->
+    @blind = @bet(amount)
+    @blind
 
   actions: (round) ->
     @_actions[round] || []
@@ -89,15 +96,20 @@ Player = class exports.Player extends EventEmitter
     @hand = Hand.make(c)
     @hand
 
-  status: (priviledged) ->
+  status: (level) ->
     s =
       name: @name
+      blind: @blind
+      ante: @ante
       wagered: @wagered
       state: @state
       chips: @chips
       actions: @_actions || []
-    if priviledged
-      s.name = @name
+    if @payout
+      s.payout = @payout
+    # Only show the cards in the final round if the player has not folded
+    # or if we are asking for the PRIVILEGED/Logging view
+    if (level == Player.STATUS.FINAL && @active()) || Player.STATUS.PRIVILEGED
       s.cards = @cards.map (c) -> c.toString()
       if @hand
         s.handName = @hand.name

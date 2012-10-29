@@ -121,7 +121,7 @@ NoLimit = module.exports = (small, big) ->
 
     takeBlinds: ->
       for blind, i in @blinds()
-        @players[i].bet blind
+        @players[i].takeBlind blind
       @analyze()
 
     options: ->

@@ -137,10 +137,12 @@ Game = class exports.Game extends EventEmitter
       else
         total = total + amount
         player.wagered = player.wagered - amount
+      player.payout = player.payout - amount
     total
 
   payout: (winner, amount) ->
     @winners.push({position: winner.position, amount: amount})
+    winner.payout = winner.payout + amount
     winner.chips = amount + winner.chips
 
   pot: ->
