@@ -1,14 +1,21 @@
 {EventEmitter} = require 'events'
 {Deck} = require 'hoyle'
 {Hand} = require 'hoyle'
+{Player} = require './player'
 utils = require 'util'
 
-class exports.Game extends EventEmitter
+Game = class exports.Game extends EventEmitter
+  @STATUS =
+    NORMAL: 0
+    PRIVILEGED: 1
+
   constructor: (players, betting) ->
     @Betting = betting
     @players = players.filter (p) -> p.chips > 0
     if @players.length < 2
       throw "Not enough players"
+    if @players.length > 22
+      throw "You can't have more that 22 players. I don't have that many cards"
     for player,i in @players
       player.position = i
     @state = null
@@ -33,8 +40,25 @@ class exports.Game extends EventEmitter
       else
         @settle()
 
+  # Take bets in order and call roundComplete when finished
+  takeBets: (betting, cb) ->
+    betting ||= new @Betting(@players, @state)
+    betOptions = betting.analyze()
+    if betOptions
+      status = @status(Game.STATUS.NORMAL, betting.nextToAct, betOptions)
+      betting.nextToAct.update status, (err, res) =>
+        betting.bet(res || 0)
+        @takeBets(betting)
+    else
+      @emit("roundComplete", @state)
+      cb?()
+
+  # Let the bet handler take the appropriate blinds/ante's
+  takeBlinds: ->
+    new @Betting(@players, @state).takeBlinds()
+
   deal: ->
-    return false if @activePlayers().length == 1
+    return false if @activePlayers().length <= 1 && @state != null
     switch @state
       when null then @preFlop()
       when 'pre-flop' then @flop()
@@ -42,21 +66,10 @@ class exports.Game extends EventEmitter
       when 'turn' then @river()
       when 'river' then false
 
-  takeBets: (cb) ->
-    @betting = new @Betting(@players, @state)
-    status = @status()
-    @betting.takeBets (status), =>
-      @emit("roundComplete", @state)
-      cb?()
-
-  takeBlinds: ->
-    new @Betting(@players, @state).takeBlinds()
-
   preFlop: ->
     # Dealer acts before the flop
-    @state = 'pre-flop'
     @takeBlinds()
-    @burn.push @deck.deal()
+    @state = 'pre-flop'
     for player in @players
       player.cards.push(@deck.deal())
     for player in @players
@@ -78,15 +91,23 @@ class exports.Game extends EventEmitter
     @burn.push @deck.deal()
     @community.push(@deck.deal())
 
-  status: (final)->
+  status: (level, player, betOptions) ->
     s = {}
     s.community = @community.map (c) -> c.toString()
     s.state = @state
-    if final
+    s.betting = betOptions || null
+    if @winners && @winners.length > 0
       s.winners = @winners
+    if level == Game.STATUS.PRIVILEGED
+      s.deck = @deck
+      s.burn = @burn
+    if player
+      s.me = player.status(Player.STATUS.PRIVILEGED)
+      s.me.position = @players.indexOf(player)
     s.players = []
     for player in @players
-      s.players.push player.status(final)
+      playerLevel = if (@state == 'complete') then Player.STATUS.FINAL else Player.STATUS.PUBLIC
+      s.players.push player.status(playerLevel)
     s
 
   distributeWinnings: (winners) ->
@@ -133,16 +154,17 @@ class exports.Game extends EventEmitter
       p.inPlay()
     calls
 
-  notifyPlayers: (callback) ->
-    j = @players.length - 1
-    i = 0
-    for player in @players
-      player.payout @status(true), ->
-        if i == j
-          callback(null)
-        i++
+  notifyPlayers: (callback, index) ->
+    index ||= 0
+    player = @players[index]
+    if player
+      player.update @status(Game.STATUS.FINAL, player), =>
+        @notifyPlayers(callback, index + 1)
+    else
+      callback()
 
   settle: ->
+    @state = 'complete'
     inPlay = @activePlayers()
     while inPlay.length >= 1
       if inPlay.length == 1
@@ -159,5 +181,5 @@ class exports.Game extends EventEmitter
         inPlay = @activePlayers()
 
     @notifyPlayers =>
-      @emit 'complete', @status(true)
+      @emit 'complete'
 

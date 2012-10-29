@@ -1,6 +1,6 @@
 module.exports = (name) ->
   name: name
-  act: (me, status) ->
+  update: (game) ->
     if me.canRaise
       me.chips
     else

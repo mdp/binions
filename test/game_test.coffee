@@ -1,4 +1,5 @@
 assert = require 'assert'
+util = require 'util'
 {Game} = require '../src/game'
 {Card} = require 'hoyle'
 {Player} = require '../src/player'
@@ -10,17 +11,19 @@ describe "Basic game", ->
     @players = []
     chips = 1000
     callsAll =
-      act: (self, status) ->
-        if self.wagered < self.minToCall
-          self.minToCall - self.wagered
-        else
-          0
+      update: (game) ->
+        self = game.me
+        unless game.state == 'complete'
+          betting = game.betting
+          if self.wagered < betting.minToCall
+            betting.minToCall - self.wagered
+          else
+            0
     for n in [0..6]
       @players.push new Player(callsAll, chips, n)
 
   it "should play the game to completion", (done) ->
     game = new Game(@players, @noLimit)
-    game.deck.shuffle()
     game.on 'complete', ->
       assert.ok game.winners.length > 0
       done()
@@ -32,6 +35,7 @@ describe "Basic game", ->
     game.deck.on 'shuffled', ->
       game.deal()
       game.takeBets()
+    game.deck.shuffle()
 
   it "should play the game to completion with run()", (done) ->
     game = new Game(@players, @noLimit)
@@ -42,7 +46,7 @@ describe "Basic game", ->
 
   describe "splitting the pot", ->
 
-    it "should handle a tie", (done) ->
+    it "should handle a tie", ->
       game = new Game(@players, @noLimit)
       game.community = ['As','Ah','9c'].map (c) -> new Card(c)
       @players[0].cards = ['Ac','Kh'].map (c) -> new Card(c)
@@ -55,9 +59,8 @@ describe "Basic game", ->
       assert.equal @players[0].chips, 1125
       assert.equal @players[1].chips, 1125
       assert.equal @players[2].chips, 950
-      done()
 
-    it "should handle the dreaded three way uneven split", (done) ->
+    it "should handle the dreaded three way uneven split", ->
       game = new Game(@players, @noLimit)
       game.community = ['As','8c','9c'].map (c) -> new Card(c)
       @players[0].cards = ['Ac','Kh'].map (c) -> new Card(c)
@@ -72,11 +75,10 @@ describe "Basic game", ->
       assert.equal @players[0].chips, 1014
       assert.equal @players[1].chips, 1013
       assert.equal @players[2].chips, 1013
-      done()
 
   describe "with side pots", ->
 
-    it "should handle side pots", (done) ->
+    it "should handle side pots", ->
       game = new Game(@players, @noLimit)
       game.community = ['As','8c','9c'].map (c) -> new Card(c)
       @players[0].cards = ['Ac','9d'].map (c) -> new Card(c)
@@ -90,9 +92,8 @@ describe "Basic game", ->
       assert.equal @players[0].chips, 960 + (40*3)
       assert.equal @players[1].chips, 950 + (10*2)
       assert.equal @players[2].chips, 950
-      done()
 
-    it "should handle side pots with a single winner(side pot loses)", (done) ->
+    it "should handle side pots with a single winner(side pot loses)", ->
       game = new Game(@players, @noLimit)
       game.community = ['As','8c','9c'].map (c) -> new Card(c)
       @players[0].cards = ['Ac','9d'].map (c) -> new Card(c)
@@ -106,9 +107,8 @@ describe "Basic game", ->
       assert.equal @players[0].chips, 950 + (50*2) + 40
       assert.equal @players[1].chips, 950
       assert.equal @players[2].chips, 960
-      done()
 
-    it "should side pots, along with a split pot", (done) ->
+    it "should side pots, along with a split pot", ->
       game = new Game(@players, @noLimit)
       game.community = ['As','8c','9c'].map (c) -> new Card(c)
       @players[0].cards = ['Ac','9d'].map (c) -> new Card(c)
@@ -122,22 +122,20 @@ describe "Basic game", ->
       assert.equal @players[0].chips, 960 + (40*3)
       assert.equal @players[1].chips, 950 + 10
       assert.equal @players[2].chips, 950 + 10
-      done()
 
   describe "telling players what they won", ->
 
     it "should call payout", (done) ->
       players = []
       for n in [0..2]
-        players.push new Player({}, 100, n)
+        players.push new Player({update: (() -> 0)}, 100, n)
       players.push new Player({
-        act: ->
-          0
-        payout: (status) ->
-          # I should get notified about the game status
-          # on settle
-          assert.ok
-          done()
+        update: (game) ->
+          if game.state == 'complete'
+            assert.ok
+            done()
+          else
+            0
       }, 100, 3)
       game = new Game(players, @noLimit)
       game.settle()

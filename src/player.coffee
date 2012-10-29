@@ -8,12 +8,16 @@
 # to the API
 {Hand} = require "hoyle"
 {EventEmitter} = require 'events'
-class exports.Player extends EventEmitter
-  constructor: (bot, chips, seat)->
+Player = class exports.Player extends EventEmitter
+  @STATUS =
+    PUBLIC: 0
+    FINAL: 1
+    PRIVILEGED: 2
+
+  constructor: (bot, chips, name)->
     @bot = bot
-    @position = seat
     @chips = chips
-    @name = bot.name if bot
+    @name = name
     @reset()
 
   reset: ->
@@ -45,7 +49,6 @@ class exports.Player extends EventEmitter
   act: (round, action, amount) ->
     amount ||= 0
     @emit 'bet',
-      position: @position
       state: @state
       amount: amount
       type: action
@@ -63,26 +66,14 @@ class exports.Player extends EventEmitter
       @bet(amount)
     _action
 
-  takeBet: (self, gameStatus, cb) ->
+  update: (gameStatus, cb) ->
     # Returns the bet amount Integer
-    if @bot.act.length > 2
-      @bot.act self, gameStatus, (err, bet) ->
-        cb(err, bet)
+    if @bot.update.length > 1
+      @bot.update gameStatus, (err, res) ->
+        cb(err, res)
     else
       process.nextTick =>
-        cb null, @bot.act(self, gameStatus)
-
-  payout: (gameStatus, cb) ->
-    # Notify the play of who won
-    if !@bot.payout
-      process.nextTick =>
-        cb null
-    else if @bot.payout.length > 1
-      @bot.payout gameStatus, (err) ->
-        cb(err)
-    else
-      process.nextTick =>
-        cb null, @bot.payout(gameStatus)
+        cb null, @bot.update(gameStatus)
 
   lastBet: (state) ->
     lastAct = @actions(state)[@actions(state).length - 1]
@@ -100,8 +91,7 @@ class exports.Player extends EventEmitter
 
   status: (priviledged) ->
     s =
-      position: @position
-      seat: @seat
+      name: @name
       wagered: @wagered
       state: @state
       chips: @chips
@@ -110,6 +100,7 @@ class exports.Player extends EventEmitter
       s.name = @name
       s.cards = @cards.map (c) -> c.toString()
       if @hand
-        s.hand = @hand.name
+        s.handName = @hand.name
+        s.hand = @hand.cards.map (c) -> c.toString()
     s
 

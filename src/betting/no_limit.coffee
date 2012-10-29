@@ -36,7 +36,7 @@ NoLimit = module.exports = (small, big) ->
         player = @players[i]
         for act, j in player.actions(@state)
           _actions[j] ||= []
-          act.position = player.position
+          act.position = i
           _actions[j].push act
       # Flatten the results
       if _actions.length > 0
@@ -75,14 +75,18 @@ NoLimit = module.exports = (small, big) ->
       @minToRaise = minRaise + @minToCall
       if @gameActive()
         @setNextToAct(lastPosition)
+      if @nextToAct
+        @options()
+      else
+        false
 
     setNextToAct: (lastPos) ->
       if lastPos == null
         @nextToAct = @players[@offset]
       else
         nextPos = (lastPos + 1) % @players.length
-        for player in @players
-          if player.position >= nextPos && player.canBet()
+        for player, i in @players
+          if i >= nextPos && player.canBet()
             if player.wagered < @minToCall
               @nextToAct = player
               break
@@ -115,29 +119,14 @@ NoLimit = module.exports = (small, big) ->
         player.act(@state, 'call', @minToCall - player.wagered) # Prevent incomplete raise unless all-in
       @analyze()
 
-    takeBets: (gameStatus, cb) ->
-      unless @nextToAct
-        cb?()
-      else
-        @nextToAct.takeBet @playerStatus(), gameStatus, (err, bet) =>
-          if err
-            @bet(0) # Check/fold on error
-          else
-            @bet(bet)
-          if @nextToAct
-            @takeBets(gameStatus, cb)
-          else
-            cb?()
-
     takeBlinds: ->
       for blind, i in @blinds()
         @players[i].bet blind
       @analyze()
 
-    playerStatus: ->
-      status = @nextToAct.status(true)
-      status.minToCall = @minToCall - @nextToAct.wagered
-      status.minToRaise = @minToRaise - @nextToAct.wagered
-      status.canRaise = @canRaise
-      status
-
+    options: ->
+      o = {}
+      o.minToCall = @minToCall
+      o.minToRaise = @minToRaise
+      o.canRaise = @canRaise
+      o
