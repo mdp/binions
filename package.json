@@ -1,6 +1,6 @@
 {
   "name": "binions",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A Javascript Poker game engine",
   "keywords": ["poker tournament", "pokerbot", "poker", "poker engine", "texas hold'em"],
   "repository": "git://github.com/mdp/binions.git",
