@@ -21,5 +21,6 @@ describe "General betting expectations", ->
 
   it "should take betting for a round", ->
     betOptions = @noLimit.analyze()
-    assert.ok betOptions
+    assert.equal 10, betOptions['raise']
+    assert.equal 0, betOptions['call']
 

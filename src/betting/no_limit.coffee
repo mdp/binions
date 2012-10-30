@@ -125,7 +125,7 @@ NoLimit = module.exports = (small, big) ->
 
     options: ->
       o = {}
-      o.minToCall = @minToCall
-      o.minToRaise = @minToRaise
+      o.call = @minToCall - @nextToAct.wagered
+      o.raise = @minToRaise - @nextToAct.wagered
       o.canRaise = @canRaise
       o

@@ -9,8 +9,8 @@ Game = class exports.Game extends EventEmitter
     NORMAL: 0
     PRIVILEGED: 1
 
-  constructor: (players, betting, round) ->
-    @round = round || 1
+  constructor: (players, betting, hand) ->
+    @hand = hand || 1
     @Betting = betting
     @players = players.filter (p) -> p.chips > 0
     if @players.length < 2
@@ -96,7 +96,7 @@ Game = class exports.Game extends EventEmitter
     s = {}
     s.community = @community.map (c) -> c.toString()
     s.state = @state
-    s.round = @round
+    s.hand = @hand
     s.betting = betOptions || null
     if @winners && @winners.length > 0
       s.winners = @winners
