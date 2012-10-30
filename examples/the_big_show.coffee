@@ -11,18 +11,14 @@ noLimit = new NoLimit(10,20)
 players = []
 chips = 1000
 for i in [1..6]
-  players.push new Player(callBot("Steve #{i}"), chips, i)
-players.push new Player(randBot("Jim"), chips, i + 3)
-sam = new Player(smartBot("Sam"), chips, i + 3)
-sam.on 'bet', (bet) ->
-  console.log bet
-players.push sam
-
+  players.push new Player(callBot(), chips, "Steve #{i}")
+players.push new Player(randBot(), chips, "Jim")
+players.push new Player(smartBot(), chips, "Sam")
 
 rounds = 1000
 i = 0
 run = ->
-  game = new Game(players, noLimit)
+  game = new Game(players, noLimit, i)
   game.run()
   game.on 'roundComplete', ->
     #console.log "round complete"

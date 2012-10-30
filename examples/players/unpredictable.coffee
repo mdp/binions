@@ -1,8 +1,9 @@
 module.exports = (name) ->
   name: name
-  act: (me, game) ->
+  update: (game) ->
     raise = Math.random() < 0.25
+    return false if game.state == 'complete'
     if raise
-      me.minToRaise
+      game.betting.raise
     else
-      me.minToCall
+      game.betting.call

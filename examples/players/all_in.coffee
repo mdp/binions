@@ -1,7 +1,8 @@
 module.exports = (name) ->
   name: name
   update: (game) ->
-    if me.canRaise
+    return false if game.state == 'complete'
+    if game.betting.canRaise
       me.chips
     else
-      me.minToCall
+      game.betting.call
