@@ -9,8 +9,8 @@ describe "General betting expectations", ->
     callsAll =
       update: (game) ->
         unless game.state == 'complete'
-          if game.me.wagered < game.minToCall
-            game.minToCall - game.me.wagered
+          if game.self.wagered < game.minToCall
+            game.minToCall - game.self.wagered
           else
             0
     for n in [0..6]

@@ -12,7 +12,7 @@ describe "Basic game", ->
     chips = 1000
     callsAll =
       update: (game) ->
-        self = game.me
+        self = game.self
         unless game.state == 'complete'
           betting = game.betting
           if self.wagered < betting.minToCall

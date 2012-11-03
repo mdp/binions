@@ -3,6 +3,6 @@ module.exports = (name) ->
   update: (game) ->
     return false if game.state == 'complete'
     if game.betting.canRaise
-      me.chips
+      game.self.chips
     else
       game.betting.call

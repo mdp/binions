@@ -104,8 +104,8 @@ Game = class exports.Game extends EventEmitter
       s.deck = @deck
       s.burn = @burn
     if player
-      s.me = player.status(Player.STATUS.PRIVILEGED)
-      s.me.position = @players.indexOf(player)
+      s.self = player.status(Player.STATUS.PRIVILEGED)
+      s.self.position = @players.indexOf(player)
     s.players = []
     for player in @players
       playerLevel = if (@state == 'complete') then Player.STATUS.FINAL else Player.STATUS.PUBLIC
