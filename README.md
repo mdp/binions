@@ -18,11 +18,8 @@ Status](https://secure.travis-ci.org/mdp/binions.png)](http://travis-ci.org/mdp/
         @players = []
         chips = 1000
         misterCallsAll =
-          act: (self, status) ->
-            if self.wagered < self.minToCall
-              self.minToCall - self.wagered
-            else
-              0
+          update: (game) ->
+            game.betting.call
         for n in [0..6]
           @players.push new Player(misterCallsAll, chips, n)
 
@@ -45,8 +42,3 @@ Status](https://secure.travis-ci.org/mdp/binions.png)](http://travis-ci.org/mdp/
 - Tight players
 - Players that occasionally go all in
 
-### Poker competition
-
-- Need to split out bot handler for running untrusted code into a
-seperate project
-- Need way to provide memory/state for the bot code (Passed in object)
