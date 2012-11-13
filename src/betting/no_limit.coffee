@@ -98,20 +98,19 @@ NoLimit = module.exports = (small, big) ->
     # Enforce betting rules here
     # eg. I bet 7, call is 5, and raise is 10
     # Results in a call at 5
-    bet: (pos, amount) ->
-      if arguments.length == 2
-        player = @players[pos]
-      else
+    bet: (amount, position, err) ->
+      if position == null
         player = @nextToAct
-        amount = pos
+      else
+        player = @players[position]
       amount = parseInt(amount, 10) || 0
       total = player.wagered + amount
       if player.chips == amount
         player.act(@state, 'allIn', amount)
       else if @minToCall - player.wagered == 0 && total < @minToRaise
-        player.act(@state, 'check')
+        player.act(@state, 'check', 0, err)
       else if total < @minToCall # Can be -1 to force a fold on check
-        player.act(@state, 'fold')
+        player.act(@state, 'fold', 0, err)
       else if total >= @minToRaise
         player.act(@state, 'raise', amount)
       else if total >= @minToCall

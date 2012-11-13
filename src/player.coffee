@@ -53,13 +53,15 @@ Player = class exports.Player extends EventEmitter
   actions: (round) ->
     @_actions[round] || []
 
-  act: (round, action, amount) ->
+  act: (round, action, amount, err) ->
     amount ||= 0
     @emit 'bet',
       state: @state
       amount: amount
       type: action
     _action = {type: action}
+    if err
+      _action.error = err
     _action['bet'] = amount if amount
     @_actions[round] ||= []
     @_actions[round].push _action

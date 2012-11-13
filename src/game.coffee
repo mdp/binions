@@ -48,7 +48,9 @@ Game = class exports.Game extends EventEmitter
     if betOptions
       status = @status(Game.STATUS.NORMAL, betting.nextToAct, betOptions)
       betting.nextToAct.update status, (err, res) =>
-        betting.bet(res || 0)
+        if err
+          @emit("bettingError", {error: err, player: betting.nextToAct})
+        betting.bet(res || 0, null, err)
         @takeBets(betting)
     else
       @emit("roundComplete", @state)
