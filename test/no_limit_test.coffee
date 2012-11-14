@@ -144,6 +144,20 @@ describe "No limit betting", ->
       @noLimit.bet(0,0)
       assert.equal @noLimit.nextToAct, null
 
+  describe "after the pre-flop", ->
+
+    beforeEach ->
+      @players= []
+      for n in [0..3]
+        @players.push new Player({}, 1000, n)
+      new NoLimit(@players, 'pre-flop').takeBlinds()
+      @noLimit = new NoLimit(@players, 'flop')
+
+    it "should handle folds", ->
+      @players[0].state = 'folded'
+      @noLimit.analyze()
+      assert.equal @noLimit.nextToAct, @players[1]
+
   describe "heads up", ->
 
     describe "during the pre-flop", ->

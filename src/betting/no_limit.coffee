@@ -80,18 +80,16 @@ NoLimit = module.exports = (small, big) ->
         false
 
     setNextToAct: (lastPos) ->
-      if lastPos == null
-        @nextToAct = @players[@offset]
-      else
-        nextPos = (lastPos + 1) % @players.length
-        for player, i in @players
-          if i >= nextPos && player.canBet()
-            if player.wagered < @minToCall
-              @nextToAct = player
-              break
-            if player.actions(@state).length == 0
-              @nextToAct = player
-              break
+      lastPos ||= @offset - 1
+      nextPos = (lastPos + 1) % @players.length
+      for player, i in @players
+        if i >= nextPos && player.canBet()
+          if player.wagered < @minToCall
+            @nextToAct = player
+            break
+          if player.actions(@state).length == 0
+            @nextToAct = player
+            break
       if @lastRaisePosition && @players[@lastRaisePosition] == @nextToAct
         @canRaise = false
 

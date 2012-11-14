@@ -32,7 +32,7 @@ Game = class exports.Game extends EventEmitter
 
   run: ->
     @deck.shuffle()
-    @deck.on 'shuffled', =>
+    @deck.once 'shuffled', =>
       @deal()
       @takeBets()
     @on 'roundComplete', =>
