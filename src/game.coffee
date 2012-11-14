@@ -137,11 +137,12 @@ Game = class exports.Game extends EventEmitter
     for player in @players
       if amount > player.wagered
         total = total + player.wagered
+        player.payout = player.payout - player.wagered
         player.wagered = 0
       else
         total = total + amount
+        player.payout = player.payout - amount
         player.wagered = player.wagered - amount
-      player.payout = player.payout - amount
     total
 
   payout: (winner, amount) ->

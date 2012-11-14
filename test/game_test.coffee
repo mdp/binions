@@ -44,6 +44,21 @@ describe "Basic game", ->
       assert.ok game.winners.length > 0
       done()
 
+  describe "settling the game", ->
+
+    it "should payout the right amounts", ->
+      game = new Game(@players, @noLimit)
+      @players[0].bet 5
+      @players[1].bet 10
+      @players[2].bet 0
+      game.distributeWinnings([@players[1]])
+      assert.equal @players[2].payout, 0
+      assert.equal @players[2].chips, 1000
+      assert.equal @players[1].payout, 5
+      assert.equal @players[1].chips, 1005
+      assert.equal @players[0].payout, -5
+      assert.equal @players[0].chips, 995
+
   describe "splitting the pot", ->
 
     it "should handle a tie", ->
