@@ -73,6 +73,7 @@ Player = class exports.Player extends EventEmitter
       @state = 'allIn'
     if amount
       @bet(amount)
+    @emit('betAction', this, action, amount, err)
     _action
 
   update: (gameStatus, cb) ->
