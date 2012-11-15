@@ -5,20 +5,32 @@ util = require 'util'
 {Player} = require '../src/player'
 NoLimit = require '../src/betting/no_limit'
 
+BLIND = 10
+MINIMUM = 20
+
+callsAll =
+  update: (game) ->
+    unless game.state == 'complete'
+      return game.betting.call
+
+raisesOnceEachRound =
+  update: (game) ->
+    unless game.state == 'complete'
+      if game.state != @lastState
+        @lastState = game.state
+        return game.betting.raise
+      return game.betting.call
+
+raisesAlways =
+  update: (game) ->
+    unless game.state == 'complete'
+      return game.betting.raise
+
 describe "Basic game", ->
   beforeEach () ->
-    @noLimit = new NoLimit(10,20)
+    @noLimit = new NoLimit(BLIND,MINIMUM)
     @players = []
     chips = 1000
-    callsAll =
-      update: (game) ->
-        self = game.self
-        unless game.state == 'complete'
-          betting = game.betting
-          if self.wagered < betting.minToCall
-            betting.minToCall - self.wagered
-          else
-            0
     for n in [0..6]
       @players.push new Player(callsAll, chips, n)
 
@@ -43,6 +55,34 @@ describe "Basic game", ->
     game.on 'complete', ->
       assert.ok game.winners.length > 0
       done()
+      
+  it "should give the big blind an option", (done) ->
+    blindPlayers = []
+    blindPlayers.push new Player(callsAll, 1000, 0)
+    blindPlayers.push new Player(raisesOnceEachRound, 1000, 'dickblind')
+    @players[0..1] = blindPlayers
+    game = new Game(@players, @noLimit)
+    game.on 'roundComplete', (state) ->
+      status = game.status()
+      assert @players[1].wagered == MINIMUM
+      done()
+    game.deck.on 'shuffled', ->
+      game.deal()
+      game.takeBets()
+    game.deck.shuffle()
+  
+  it "should prevent a player from raising twice in a round", (done) ->
+    blindPlayers = []
+    @players.push new Player(raisesAlways, 1000, 'raisebot')
+    game = new Game(@players, @noLimit)
+    game.on 'roundComplete', (state) ->
+      status = game.status()
+      assert @players[@players.length - 1].wagered == MINIMUM
+      done()
+    game.deck.on 'shuffled', ->
+      game.deal()
+      game.takeBets()
+    game.deck.shuffle()
 
   describe "settling the game", ->
 
