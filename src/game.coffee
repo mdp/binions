@@ -31,6 +31,7 @@ Game = class exports.Game extends EventEmitter
     @winners = []
 
   run: ->
+    @emit('roundStart')
     @deck.shuffle()
     @deck.once 'shuffled', =>
       @deal()
@@ -62,12 +63,16 @@ Game = class exports.Game extends EventEmitter
 
   deal: ->
     return false if @activePlayers().length <= 1 && @state != null
+    retval = true
     switch @state
       when null then @preFlop()
       when 'pre-flop' then @flop()
       when 'flop' then @turn()
       when 'turn' then @river()
-      when 'river' then false
+      when 'river' then retval = false
+     
+    @emit('stateChange', @state)
+    return retval
 
   preFlop: ->
     # Dealer acts before the flop
@@ -111,6 +116,8 @@ Game = class exports.Game extends EventEmitter
     s.players = []
     for player in @players
       playerLevel = if (@state == 'complete') then Player.STATUS.FINAL else Player.STATUS.PUBLIC
+      if level == Game.STATUS.PRIVILEGED
+          playerLevel = Player.STATUS.PRIVILEGED
       s.players.push player.status(playerLevel)
     s
 
