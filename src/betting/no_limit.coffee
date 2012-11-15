@@ -80,7 +80,7 @@ NoLimit = module.exports = (small, big) ->
         false
 
     setNextToAct: (lastPos) ->
-      lastPos ||= @offset - 1
+      lastPos ?= @offset - 1
       nextPos = (lastPos + 1) % @players.length
       for player, i in @players
         if i >= nextPos && player.canBet()
