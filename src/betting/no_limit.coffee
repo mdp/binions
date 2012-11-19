@@ -82,9 +82,10 @@ NoLimit = module.exports = (small, big) ->
     setNextToAct: (lastPos) ->
       lastPos ?= @offset - 1
       nextPos = (lastPos + 1) % @players.length
-      for player, i in @players
-        if i >= nextPos && player.canBet()
-          if player.wagered < @minToCall
+      for i in [nextPos..nextPos + @players.length]
+        player = @players[i % @players.length]
+        if player.canBet()
+          if player.roundWager < @minToCall
             @nextToAct = player
             break
           if player.actions(@state).length == 0
@@ -103,6 +104,7 @@ NoLimit = module.exports = (small, big) ->
         player = @players[position]
       amount = parseInt(amount, 10) || 0
       total = player.wagered + amount
+      amount = Math.min(amount, player.chips)
       if player.chips == amount
         player.act(@state, 'allIn', amount)
       else if @minToCall - player.wagered == 0 && total < @minToRaise

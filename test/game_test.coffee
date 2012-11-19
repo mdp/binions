@@ -23,8 +23,13 @@ raisesOnceEachRound =
 
 raisesAlways =
   update: (game) ->
+    #console.log("raisebot: " + JSON.stringify(game, null, ' '))
     unless game.state == 'complete'
       return game.betting.raise
+      
+folder =
+  update: (game) ->
+    return 0
 
 describe "Basic game", ->
   beforeEach () ->
@@ -55,7 +60,7 @@ describe "Basic game", ->
     game.on 'complete', ->
       assert.ok game.winners.length > 0
       done()
-      
+  
   it "should give the big blind an option", (done) ->
     blindPlayers = []
     blindPlayers.push new Player(callsAll, 1000, 0)
@@ -83,6 +88,26 @@ describe "Basic game", ->
       game.deal()
       game.takeBets()
     game.deck.shuffle()
+    
+  it "should take bets from all players after a raise when the next player in position has folded", (done) ->
+    @players.push new Player(folder, 1000, 'foldbot')
+    @players.push new Player(raisesAlways, 1000, 'raisebot')
+    @players.push new Player(folder, 1000, 'foldbot')
+    game = new Game(@players, @noLimit)
+    game.on 'roundComplete', (state) ->
+      #console.log(game.status())
+      for player in @players
+        continue if player.name == 'foldbot'
+        assert player.wagered == @players[0].wagered, "Wager for player " + player.name + " is not what was expected: " + player.wagered
+      if game.state == 'turn'
+        done()
+      else
+        game.deal()
+        game.takeBets()
+    game.deck.on 'shuffled', ->
+      game.deal()
+      game.takeBets()
+    game.deck.shuffle()
 
   describe "settling the game", ->
 
@@ -91,6 +116,7 @@ describe "Basic game", ->
       @players[0].bet 5
       @players[1].bet 10
       @players[2].bet 0
+      game.collectWagers()
       game.distributeWinnings([@players[1]])
       assert.equal @players[2].payout, 0
       assert.equal @players[2].chips, 1000
@@ -107,7 +133,8 @@ describe "Basic game", ->
       @players[0].cards = ['Ac','Kh'].map (c) -> new Card(c)
       @players[1].cards = ['Ad','Kh'].map (c) -> new Card(c)
       for player in @players
-        player.bet 50
+        player.bet 50      
+      game.collectWagers()
       assert.equal game.pot(), 350
       game.settle()
       assert.equal game.winners.length, 2
@@ -123,6 +150,7 @@ describe "Basic game", ->
       @players[2].cards = ['Ah','Ks'].map (c) -> new Card(c)
       for player in @players
         player.bet 10
+      game.collectWagers()
       assert.equal game.pot(), 70
       game.settle()
       assert.equal game.winners.length, 3
@@ -142,6 +170,7 @@ describe "Basic game", ->
       @players[1].bet 50
       @players[2].cards = ['Ah','7s'].map (c) -> new Card(c)
       @players[2].bet 50
+      game.collectWagers()
       assert.equal game.pot(), 140
       game.settle()
       assert.equal @players[0].chips, 960 + (40*3)
@@ -157,6 +186,7 @@ describe "Basic game", ->
       @players[1].bet 50
       @players[2].cards = ['Ah','7s'].map (c) -> new Card(c)
       @players[2].bet 40
+      game.collectWagers()
       assert.equal game.pot(), 140
       game.settle()
       assert.equal @players[0].chips, 950 + (50*2) + 40
@@ -172,6 +202,7 @@ describe "Basic game", ->
       @players[1].bet 50
       @players[2].cards = ['Ah','8s'].map (c) -> new Card(c)
       @players[2].bet 50
+      game.collectWagers()
       assert.equal game.pot(), 140
       game.settle()
       assert.equal @players[0].chips, 960 + (40*3)
