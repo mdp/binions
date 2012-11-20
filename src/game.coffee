@@ -69,7 +69,9 @@ Game = class exports.Game extends EventEmitter
       when 'pre-flop' then @flop()
       when 'flop' then @turn()
       when 'turn' then @river()
-      when 'river' then retval = false
+      when 'river', 'final'
+        @state = 'final'
+        retval = false
      
     @emit('stateChange', @state)
     return retval
