@@ -116,7 +116,6 @@ describe "Basic game", ->
       @players[0].bet 5
       @players[1].bet 10
       @players[2].bet 0
-      game.collectWagers()
       game.distributeWinnings([@players[1]])
       assert.equal @players[2].payout, 0
       assert.equal @players[2].chips, 1000
@@ -134,7 +133,6 @@ describe "Basic game", ->
       @players[1].cards = ['Ad','Kh'].map (c) -> new Card(c)
       for player in @players
         player.bet 50      
-      game.collectWagers()
       assert.equal game.pot(), 350
       game.settle()
       assert.equal game.winners.length, 2
@@ -150,7 +148,6 @@ describe "Basic game", ->
       @players[2].cards = ['Ah','Ks'].map (c) -> new Card(c)
       for player in @players
         player.bet 10
-      game.collectWagers()
       assert.equal game.pot(), 70
       game.settle()
       assert.equal game.winners.length, 3
@@ -170,7 +167,6 @@ describe "Basic game", ->
       @players[1].bet 50
       @players[2].cards = ['Ah','7s'].map (c) -> new Card(c)
       @players[2].bet 50
-      game.collectWagers()
       assert.equal game.pot(), 140
       game.settle()
       assert.equal @players[0].chips, 960 + (40*3)
@@ -186,7 +182,6 @@ describe "Basic game", ->
       @players[1].bet 50
       @players[2].cards = ['Ah','7s'].map (c) -> new Card(c)
       @players[2].bet 40
-      game.collectWagers()
       assert.equal game.pot(), 140
       game.settle()
       assert.equal @players[0].chips, 950 + (50*2) + 40
@@ -202,7 +197,6 @@ describe "Basic game", ->
       @players[1].bet 50
       @players[2].cards = ['Ah','8s'].map (c) -> new Card(c)
       @players[2].bet 50
-      game.collectWagers()
       assert.equal game.pot(), 140
       game.settle()
       assert.equal @players[0].chips, 960 + (40*3)

@@ -85,7 +85,7 @@ NoLimit = module.exports = (small, big) ->
       for i in [nextPos..nextPos + @players.length]
         player = @players[i % @players.length]
         if player.canBet()
-          if player.roundWager < @minToCall
+          if player.wagered < @minToCall
             @nextToAct = player
             break
           if player.actions(@state).length == 0
