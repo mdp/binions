@@ -170,7 +170,7 @@ describe "No limit betting", ->
         @noLimit.takeBlinds()
 
       it "should take small blind from the button", () ->
-        assert.equal @players[1].wagered, 5
+        assert.equal @players[1].blind, 5
 
       it "should start with the button/dealer", () ->
         assert.equal @noLimit.nextToAct, @players[1]
