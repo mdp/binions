@@ -18,6 +18,6 @@
     ,"mocha" : ">=1.4.2"
   },
   "main": "./lib/index.js",
-  "engines": { "node": "0.8.x" },
+  "engines": { "node": ">=0.8.x" },
   "license": "MIT"
 }
